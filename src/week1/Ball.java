@@ -105,12 +105,14 @@ public class Ball {
 		return pos.x + vel.x * t;
 	}
 	
+	// draws the ball
 	public void display(PApplet parent) {
 		parent.ellipse(pos.x, pos.y, r, r);
 		//double y = ((double)img_x/692)*20 + img_y
 		
 	}
 	
+	// based on the x location of the ball, find the MIDI value of note it should hit
 	public static int getMidiFromX(double x) {
 		return (int) (21 + (x - x_min)/key_width);
 	}
