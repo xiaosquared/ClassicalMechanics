@@ -18,17 +18,26 @@ public class WeekOne extends PApplet {
 	public MidiOutput output;
 	
 	Ball[] balls = new Ball[21];
+
+	Projection proj;
+	boolean bDrawOutline = false;
 	
 	public void setup() {
 		size(1024, 535 + y_min, P3D);
 		input = RWMidi.getInputDevices()[0].createInput(this);
 		output = RWMidi.getOutputDevices()[0].createOutput();
 		
+		proj = new Projection(this);
+		
 		initBalls();
+		stroke(255);
 	}
 
 	public void draw() {
 		background(0);
+		
+		if (bDrawOutline)
+			proj.drawOutline();
 		
 		for (int i = 0; i < balls.length; i++) {
 			Ball b = balls[i];
@@ -56,15 +65,19 @@ public class WeekOne extends PApplet {
 	}
 	
 	public void keyPressed() {
-		if (key == '1') 
-			balls = new Ball[1];
-		else if (key == '2')
-			balls = new Ball[2];
-		else if (key == '3')
-			balls = new Ball[3];
-		else if (key == '4')
-			balls = new Ball[20];
-		initBalls();
+		if (key == 'l')
+			bDrawOutline = !bDrawOutline;
+			else {
+				if (key == '1') 
+					balls = new Ball[1];
+				else if (key == '2')
+					balls = new Ball[2];
+				else if (key == '3')
+					balls = new Ball[3];
+				else if (key == '4')
+					balls = new Ball[20];
+				initBalls();
+			}
 	}
 	
 	public static void main(String[] args) {

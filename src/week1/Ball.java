@@ -15,14 +15,6 @@ public class Ball {
 	double note_velocity; // used to determine midi strength
 	
 	static double gravity = .1;
-	
-	// Projecting on piano
-	static int y_max = 466;
-	static int y_min = 347;
-	static int left_wall = 66;
-	static int right_wall = 820;
-	static double x_min = 98;
-	static double key_width = 7.76;
 	static double epsilon = 0.00000001;
 	
 	// MIDI
@@ -33,14 +25,11 @@ public class Ball {
 	public Ball(PVector pos, PVector vel, WeekOne parent) {
 		this.pos = pos;
 		this.vel = vel;
-		note_velocity = Math.sqrt(2*gravity*(y_max-pos.y));
+		note_velocity = Math.sqrt(2*gravity*(parent.proj.y_max-pos.y));
 		
 		this.t0 = parent.millis();
-		System.out.println("t0: " + t0);
 		
-		nextNote = getMidiFromX(getNextBounceX(pos, vel, true)); //discount the initial time
-		
-		//System.out.println(nextNote);
+		nextNote = parent.proj.getMidiFromX(getNextBounceX(pos, vel, true, parent.proj.y_max)); //discount the initial time
 	}
 	
 	public void update(WeekOne parent) {
@@ -62,24 +51,24 @@ public class Ball {
 		}
 		
 		// check if we're at the bottom
-		int maxY = y_max + getOffsetY(pos.x) - r;	
-		if (pos.y > maxY) {	
+		int maxY = parent.proj.y_max + parent.proj.getOffsetY(pos.x) - r;	
+		if (pos.y > maxY-r) {	
 			vel.y *= -.8f;							// take away some velocity 
 			vel.x *= .8f;
 			note_velocity = -vel.y;
 
 			prevNote = nextNote;					// since we're starting a new bounce cycle 
-			nextNote = getMidiFromX(getNextBounceX(pos, vel, false));	// figure out the next note
+			nextNote = parent.proj.getMidiFromX(getNextBounceX(pos, vel, false, parent.proj.y_max)); // figure out the next note
 
 
 			t0 = parent.millis();					// and reset t0 for new bounce cycle
 			playedNote = false;
 
-			pos.y = maxY;	// hack to make sure ball doesn't fall through!	
+			pos.y = maxY-r;	// hack to make sure ball doesn't fall through!	
 		}
 		
 		// make them bounce off sides
-		if (pos.x < left_wall || pos.x > right_wall) {
+		if (pos.x < parent.proj.left_wall || pos.x > parent.proj.right_wall) {
 			vel.x *= -.95f;
 		}
 	}
@@ -88,7 +77,7 @@ public class Ball {
 		return (note > 20) && (note < 109);
 	}
 	
-	public double getNextBounceX(PVector pos, PVector vel, boolean init) {
+	public double getNextBounceX(PVector pos, PVector vel, boolean init, int y_max) {
 		double t = 0;
 		if (init) {
 			double a = gravity/2;
@@ -108,39 +97,6 @@ public class Ball {
 	// draws the ball
 	public void display(PApplet parent) {
 		parent.ellipse(pos.x, pos.y, r, r);
-		//double y = ((double)img_x/692)*20 + img_y
-		
 	}
 	
-	// based on the x location of the ball, find the MIDI value of note it should hit
-	public static int getMidiFromX(double x) {
-		return (int) (21 + (x - x_min)/key_width);
-	}
-	
-	public static void testFourCorners(WeekOne parent) {
-		parent.fill(255);
-		parent.ellipse(Xmin(), y_min, 20, 20);
-		parent.ellipse(Xmin(), y_max, 20, 20);
-		
-		System.out.println(getOffsetY(Xmax()));
-		
-		parent.ellipse(Xmax(), y_min + getOffsetY(Xmax()), 20, 20);
-		parent.ellipse(Xmax(), y_max + getOffsetY(Xmax()), 20, 20);
-	}
-	
-	public static int Xmin() {
-		return 99;
-	}
-	
-	public static int Xmax() {
-		return 787;
-	}
-
-	public static int Ymax(double x) {
-		return (int) (y_max + getOffsetY(x));
-	}
-	
-	public static int getOffsetY(double x) {					
-		return (int) ((x - 99)/692 * 20);
-	}
 }
